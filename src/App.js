@@ -1,54 +1,54 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./styles.css";
 
-function CountrySearch() {
+function App() {
   const [countries, setCountries] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredCountries, setFilteredCountries] = useState([]);
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchCountries();
-  }, []);
-
-  const fetchCountries = async () => {
+  const getCountriesData = async () => {
     try {
-      const response = await fetch("https://restcountries.com/v3.1/all");
-      const data = await response.json();
-      setCountries(data);
-      setFilteredCountries(data);
+      const data = await fetch("https://restcountries.com/v3.1/all");
+      const res = await data.json();
+      setCountries(res);
     } catch (error) {
-      console.error("Failed to fetch countries:", error);
+      console.error("Error fetching data: ", error);
     }
   };
 
-  const handleSearch = (event) => {
-    const searchTerm = event.target.value.toLowerCase();
-    setSearchTerm(searchTerm);
-    const filtered = countries.filter((country) =>
-      country.name.common.toLowerCase().includes(searchTerm)
-    );
-    setFilteredCountries(filtered);
-  };
+  const filteredCountries = countries.filter((country) =>
+    country.name.common.toLowerCase().includes(search.toLowerCase())
+  );
+
+  useEffect(() => {
+    getCountriesData();
+  }, []);
 
   return (
-    <div className="container">
-      <h1>Country Search</h1>
-      <input
-        type="text"
-        placeholder="Search country..."
-        value={searchTerm}
-        onChange={handleSearch}
-      />
-      <div className="country-grid">
-        {filteredCountries.map((country) => (
-          <div key={country.name.common} className="countryCard">
-            <img src={country.flags.png} alt={country.name.common} />
-            <p>{country.name.common}</p>
-          </div>
-        ))}
+    <>
+      <div className="searchBar">
+        <input
+          type="text"
+          placeholder="Search for countries..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
-    </div>
+      <div className="container">
+        {filteredCountries.map((country) => {
+          return (
+            <div key={country.cca3} className="countryCard">
+              <img
+                src={country.flags.png}
+                alt={`Flag of ${country.name.common}`}
+                className="imageStyle"
+              />
+              <p className="textStyle">{country.name.common}</p>
+            </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
 
-export default CountrySearch;
+export default App;
